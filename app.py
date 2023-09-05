@@ -4,7 +4,8 @@ from flask import Flask, redirect, session, render_template, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, User
-from forms import RegisterForm
+from forms import RegisterForm, LoginForm
+from werkzeug.exceptions import Unauthorized
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
@@ -38,6 +39,17 @@ def register():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
+        if User.query.filter(User.username == username).first() and User.query.filter(User.email == email).first():
+            form.username.errors = ["Username already exists!"]
+            form.email.errors = ["Email is already associated with a user!"]
+            return render_template("register.html", form=form)
+        elif User.query.filter(User.username == username).first():
+            form.username.errors = ["Username already exists!"]
+            return render_template("register.html", form=form)
+        elif User.query.filter(User.email == email).first():
+            form.email.errors = ["Email is already associated with a user!"]
+            return render_template("register.html", form=form)
+
         user = User.register(username, pwd, email, first_name, last_name)
         db.session.add(user)
         db.session.commit()
@@ -46,7 +58,41 @@ def register():
 
         return redirect(f"/users/{username}")
 
+    return render_template("register.html", form=form)
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    """Show and handle login form."""
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        pwd = form.password.data
+
+        user = User.authenticate(username, pwd)
+
+        if user:
+            session["username"] = username
+            return redirect(f"/users/{username}")
+
+        else:
+            form.username.errors = ["Bad name/password"]
+
+    return render_template("login.html", form=form)
+
+@app.get('/users/<username>')
+def show_user(username):
+    """Show information about user."""
+
+    if "username" not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
+
     else:
-        return render_template("register.html", form=form)
+        if session["username"] == username:
+            user = User.query.get_or_404(username)
+            return render_template("user.html", user=user)
 
-
+        else:
+            raise Unauthorized()
