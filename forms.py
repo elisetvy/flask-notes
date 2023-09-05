@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField
-from wtforms.validators import InputRequired, Email, Length, Optional
+from wtforms import StringField, PasswordField, EmailField, TextAreaField
+from wtforms.validators import InputRequired, Email, Length
 
 
 ########## USER FORMS ##########
@@ -62,7 +62,7 @@ class AddNoteForm(FlaskForm):
         validators=[InputRequired(), Length(max=100)]
     )
 
-    content = StringField(
+    content = TextAreaField(
         "Content",
         validators=[InputRequired()]
     )
@@ -76,7 +76,7 @@ class EditNoteForm(FlaskForm):
         validators=[InputRequired(), Length(max=100)]
     )
 
-    content = StringField(
+    content = TextAreaField(
         "Content",
         validators=[InputRequired()]
     )

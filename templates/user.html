@@ -13,26 +13,28 @@
 <ul>
 {% for note in notes %}
 <li>
-  {{ note.title }}
-
-  <button formmethod="GET" formaction="/notes/{{ note.id }}/update" class="btn btn-secondary">Edit</button>
-
-  <button formmethod="POST" formaction="/notes/{{ note.id }}/delete" class="btn btn-secondary">Delete</button>
+  <form style="display:inline;">
+  <button formmethod="GET" formaction="/notes/{{ note.id }}/update" class="bi bi-pencil-square btn btn-secondary"></button>
+  <button formmethod="POST" formaction="/notes/{{ note.id }}/delete" class="bi bi-trash3 btn btn-danger"></button>
+  </form>
+  <span>{{ note.title }}</span> <span style="font-size: .65rem;">{{ note.content }}</span>
 </li>
 {% endfor %}
 </ul>
 
 <!-- ADD NOTE -->
-<button formmethod="GET" formaction="FIXME:/users/<username>/notes/add" class="btn btn-primary">Add Note</button>
-
+<form>
+<button formaction="/users/{{ user.username }}/notes/add" formmethod="GET" class="btn btn-primary">Add Note</button>
+</form>
 
 <!-- LOGOUT -->
 <form action="/logout" method="POST">
-  {{ form.hidden_tag() }}
+  {{ logout_form.hidden_tag() }}
   <button type="submit" class="btn btn-secondary">Logout</button>
 </form>
 
 <!-- DELETE USER -->
-FIXME:
-
+<form>
+<button formmethod="POST" formaction="/users/{{ user.username }}/delete" class="btn btn-danger">Delete Account</button>
+</form>
 {% endblock %}
