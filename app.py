@@ -19,6 +19,7 @@ app.config['SECRET_KEY'] = "I'LL NEVER TELL!!"
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
+AUTH_KEY = "username"
 
 @app.get("/")
 def show_root():
@@ -39,6 +40,7 @@ def register():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
+# TODO: Get 2nd code review
         is_valid = True
 
         if User.query.filter(User.username == username).first():
@@ -54,7 +56,7 @@ def register():
             db.session.add(user)
             db.session.commit()
 
-            session['username'] = username
+            session[AUTH_KEY] = username
 
             return redirect(f"/users/{username}")
 
@@ -73,7 +75,7 @@ def login():
         user = User.authenticate(username, pwd)
 
         if user:
-            session["username"] = username
+            session[AUTH_KEY] = username
             return redirect(f"/users/{username}")
 
         else:
@@ -81,26 +83,26 @@ def login():
 
     return render_template("login.html", form=form)
 
+
 @app.get('/users/<username>')
 def show_user(username):
     """Show information about user."""
-
-    form = CSRFProtectForm()
 
     if "username" not in session:
         flash("You must be logged in to view!")
         return redirect("/")
 
-    else:
-        if session["username"] == username:
-            user = User.query.get_or_404(username)
-            return render_template("user.html",
-                                   user=user,
-                                   session=session,
-                                   form=form)
+    if session[AUTH_KEY] != username:
+        raise Unauthorized()
 
-        else:
-            raise Unauthorized()
+    user = User.query.get_or_404(username)
+    form = CSRFProtectForm()
+
+    return render_template("user.html",
+                            user=user,
+                            session=session,
+                            form=form)
+
 
 @app.post("/logout")
 def logout():
@@ -109,7 +111,8 @@ def logout():
     form = CSRFProtectForm()
 
     if form.validate_on_submit():
-        # Remove "user_id" if present, but no errors if it wasn't
+        # Remove "username" if present, but no errors if it wasn't
         session.pop("username", None)
+        return redirect("/")
 
-    return redirect("/")
+    raise Unauthorized()

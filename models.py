@@ -62,12 +62,12 @@ class User(db.Model):
 
         Return user if valid; else return False.
         """
+# TODO: change u to user
+        user = cls.query.filter_by(username=username).one_or_none()
 
-        u = cls.query.filter_by(username=username).one_or_none()
-
-        if u and bcrypt.check_password_hash(u.password, pwd):
+        if user and bcrypt.check_password_hash(user.password, pwd):
             # return user instance
-            return u
+            return user
         else:
             return False
     # end_authenticate
