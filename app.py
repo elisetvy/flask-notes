@@ -95,13 +95,14 @@ def show_user(username):
     if session[AUTH_KEY] != username:
         raise Unauthorized()
 
+    logout_form = CSRFProtectForm()
     user = User.query.get_or_404(username)
-    form = CSRFProtectForm()
 
     return render_template("user.html",
                             user=user,
                             session=session,
-                            form=form)
+                            logout_form=logout_form,
+                            notes=user.notes)
 
 
 @app.post("/logout")
@@ -116,3 +117,5 @@ def logout():
         return redirect("/")
 
     raise Unauthorized()
+
+

@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField
-from wtforms.validators import InputRequired, Email, Length
+from wtforms.validators import InputRequired, Email, Length, Optional
 
+
+########## USER FORMS ##########
 
 class RegisterForm(FlaskForm):
     """Form for registering a user."""
@@ -48,3 +50,33 @@ class LoginForm(FlaskForm):
 
 class CSRFProtectForm(FlaskForm):
     """Form for CSRF protection."""
+
+
+########## NOTES FORMS ##########
+
+class AddNoteForm(FlaskForm):
+    """Form to add note."""
+
+    title = StringField(
+        "Title",
+        validators=[InputRequired(), Length(max=100)]
+    )
+
+    content = StringField(
+        "Content",
+        validators=[InputRequired()]
+    )
+
+
+class EditNoteForm(FlaskForm):
+    """Form to edit note."""
+
+    title = StringField(
+        "Title",
+        validators=[InputRequired(), Length(max=100)]
+    )
+
+    content = StringField(
+        "Content",
+        validators=[InputRequired()]
+    )

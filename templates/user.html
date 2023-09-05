@@ -8,9 +8,31 @@
 <p>Username: {{ user.username }}</p>
 <p>Email: {{ user.email }}</p>
 
+<!-- DISPLAY NOTES -->
+<h2>Notes</h2>
+<ul>
+{% for note in notes %}
+<li>
+  {{ note.title }}
+
+  <button formmethod="GET" formaction="/notes/{{ note.id }}/update" class="btn btn-secondary">Edit</button>
+
+  <button formmethod="POST" formaction="/notes/{{ note.id }}/delete" class="btn btn-secondary">Delete</button>
+</li>
+{% endfor %}
+</ul>
+
+<!-- ADD NOTE -->
+<button formmethod="GET" formaction="FIXME:/users/<username>/notes/add" class="btn btn-primary">Add Note</button>
+
+
+<!-- LOGOUT -->
 <form action="/logout" method="POST">
   {{ form.hidden_tag() }}
-  <button type="submit" class="btn btn-primary">Logout</button>
+  <button type="submit" class="btn btn-secondary">Logout</button>
 </form>
+
+<!-- DELETE USER -->
+FIXME:
 
 {% endblock %}

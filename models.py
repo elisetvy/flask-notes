@@ -18,6 +18,8 @@ class User(db.Model):
 
     __tablename__ = "users"
 
+    notes = db.relationship('Note', backref='user')
+
     username = db.Column(
         db.String(20),
         primary_key=True)
@@ -62,7 +64,7 @@ class User(db.Model):
 
         Return user if valid; else return False.
         """
-# TODO: change u to user
+
         user = cls.query.filter_by(username=username).one_or_none()
 
         if user and bcrypt.check_password_hash(user.password, pwd):
@@ -71,3 +73,27 @@ class User(db.Model):
         else:
             return False
     # end_authenticate
+
+
+class Note(db.Model):
+    """Note database model."""
+
+    __tablename__ = "notes"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True)
+
+    title = db.Column(
+        db.String(100),
+        nullable=False)
+
+    content = db.Column(
+        db.Text,
+        nullable=False)
+
+    owner_username = db.Column(
+        db.String(20),
+        db.ForeignKey('users.username'),
+        nullable=False)
