@@ -1,0 +1,6 @@
+Flask
+git+https://github.com/pallets-eco/flask-debugtoolbar
+Flask-SQLAlchemy
+Flask-WTF
+ipython
+psycopg2-binary
