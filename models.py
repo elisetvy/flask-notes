@@ -42,7 +42,7 @@ class User(db.Model):
     # start_register
     @classmethod
     def register(cls, username, pwd, email, first_name, last_name):
-        """Register user w/hashed password & return user."""
+        """Register user w/hashed password & return user. Copied from Demo."""
 
         hashed = bcrypt.generate_password_hash(pwd).decode('utf8')
 
@@ -58,7 +58,7 @@ class User(db.Model):
     # start_authenticate
     @classmethod
     def authenticate(cls, username, pwd):
-        """Validate that user exists & password is correct.
+        """Validate that user exists & password is correct. Copied from Demo.
 
         Return user if valid; else return False.
         """

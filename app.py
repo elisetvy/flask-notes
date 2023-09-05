@@ -4,7 +4,7 @@ from flask import Flask, redirect, session, render_template, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, User
-from forms import RegisterForm, LoginForm
+from forms import RegisterForm, LoginForm, CSRFProtectForm
 from werkzeug.exceptions import Unauthorized
 
 app = Flask(__name__)
@@ -39,24 +39,24 @@ def register():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
-        if User.query.filter(User.username == username).first() and User.query.filter(User.email == email).first():
+        is_valid = True
+
+        if User.query.filter(User.username == username).first():
             form.username.errors = ["Username already exists!"]
+            is_valid = False
+
+        if User.query.filter(User.email == email).first():
             form.email.errors = ["Email is already associated with a user!"]
-            return render_template("register.html", form=form)
-        elif User.query.filter(User.username == username).first():
-            form.username.errors = ["Username already exists!"]
-            return render_template("register.html", form=form)
-        elif User.query.filter(User.email == email).first():
-            form.email.errors = ["Email is already associated with a user!"]
-            return render_template("register.html", form=form)
+            is_valid = False
 
-        user = User.register(username, pwd, email, first_name, last_name)
-        db.session.add(user)
-        db.session.commit()
+        if is_valid:
+            user = User.register(username, pwd, email, first_name, last_name)
+            db.session.add(user)
+            db.session.commit()
 
-        session['username'] = username
+            session['username'] = username
 
-        return redirect(f"/users/{username}")
+            return redirect(f"/users/{username}")
 
     return render_template("register.html", form=form)
 
@@ -85,6 +85,8 @@ def login():
 def show_user(username):
     """Show information about user."""
 
+    form = CSRFProtectForm()
+
     if "username" not in session:
         flash("You must be logged in to view!")
         return redirect("/")
@@ -92,7 +94,22 @@ def show_user(username):
     else:
         if session["username"] == username:
             user = User.query.get_or_404(username)
-            return render_template("user.html", user=user)
+            return render_template("user.html",
+                                   user=user,
+                                   session=session,
+                                   form=form)
 
         else:
             raise Unauthorized()
+
+@app.post("/logout")
+def logout():
+    """Logs user out and redirects to homepage. Copied from Demo."""
+
+    form = CSRFProtectForm()
+
+    if form.validate_on_submit():
+        # Remove "user_id" if present, but no errors if it wasn't
+        session.pop("username", None)
+
+    return redirect("/")
