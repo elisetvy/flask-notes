@@ -5,6 +5,7 @@ db = SQLAlchemy()
 
 bcrypt = Bcrypt()
 
+
 def connect_db(app):
     """Connect to database."""
 

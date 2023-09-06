@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ user.username }}{% endblock %}
+{% block title %}{{user.first_name}} {{ user.last_name }}{% endblock %}
 
 {% block content %}
 
@@ -11,20 +11,21 @@
 <!-- DISPLAY NOTES -->
 <h2>Notes</h2>
 <ul>
-{% for note in notes %}
-<li>
-  <form style="display:inline;">
-  <button formmethod="GET" formaction="/notes/{{ note.id }}/update" class="bi bi-pencil-square btn btn-secondary"></button>
-  <button formmethod="POST" formaction="/notes/{{ note.id }}/delete" class="bi bi-trash3 btn btn-danger"></button>
-  </form>
-  <span>{{ note.title }}</span> <span style="font-size: .65rem;">{{ note.content }}</span>
-</li>
-{% endfor %}
+  {% for note in notes %}
+  <li>
+    <form class="note-form-list">
+      <button formmethod="GET" formaction="/notes/{{ note.id }}/update"
+        class="bi bi-pencil-square btn btn-secondary"></button>
+      <button formmethod="POST" formaction="/notes/{{ note.id }}/delete" class="bi bi-trash3 btn btn-danger"></button>
+    </form>
+    <span>{{ note.title }}</span> <span class="note-content">{{ note.content }}</span>
+  </li>
+  {% endfor %}
 </ul>
 
 <!-- ADD NOTE -->
 <form>
-<button formaction="/users/{{ user.username }}/notes/add" formmethod="GET" class="btn btn-primary">Add Note</button>
+  <button formaction="/users/{{ user.username }}/notes/add" formmethod="GET" class="btn btn-primary">Add Note</button>
 </form>
 
 <!-- LOGOUT -->
@@ -35,6 +36,7 @@
 
 <!-- DELETE USER -->
 <form>
-<button formmethod="POST" formaction="/users/{{ user.username }}/delete" class="btn btn-danger">Delete Account</button>
+  <button formmethod="POST" formaction="/users/{{ user.username }}/delete" class="btn btn-danger">Delete
+    Account</button>
 </form>
 {% endblock %}

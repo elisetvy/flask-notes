@@ -4,6 +4,8 @@
 
 {% block content %}
 
+<h1>Sign Up</h1>
+
 <form action="/register" method="POST">
   {{ form.hidden_tag() }}
 
@@ -21,6 +23,10 @@
   {% endfor %}
 
   <button class="btn btn-primary" type="submit">Register</button>
+
 </form>
+
+<a class="btn btn-secondary" href="/login">Login</a>
+
 
 {% endblock %}

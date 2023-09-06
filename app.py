@@ -19,7 +19,9 @@ app.config['SECRET_KEY'] = "I'LL NEVER TELL!!"
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
+
 AUTH_KEY = "username"
+
 
 @app.get("/")
 def show_root():
@@ -27,7 +29,8 @@ def show_root():
 
     return redirect("/register")
 
-@app.route("/register", methods=["GET","POST"])
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user: produce form & handle form submission."""
 
@@ -58,9 +61,11 @@ def register():
 
             session[AUTH_KEY] = username
 
+            flash("User created.")
             return redirect(f"/users/{username}")
 
     return render_template("register.html", form=form)
+
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -99,10 +104,10 @@ def show_user(username):
     user = User.query.get_or_404(username)
 
     return render_template("user.html",
-                            user=user,
-                            session=session,
-                            logout_form=logout_form,
-                            notes=user.notes)
+                           user=user,
+                           session=session,
+                           logout_form=logout_form,
+                           notes=user.notes)
 
 
 @app.post("/logout")
@@ -114,9 +119,12 @@ def logout():
     if form.validate_on_submit():
         # Remove "username" if present, but no errors if it wasn't
         session.pop(AUTH_KEY, None)
+
+        flash("Logged out.")
         return redirect("/")
 
     raise Unauthorized()
+
 
 @app.post("/users/<username>/delete")
 def delete_user_and_notes(username):
@@ -126,14 +134,19 @@ def delete_user_and_notes(username):
         user = User.query.get_or_404(username)
         notes = user.notes
 
-        db.session.delete(notes)
+        for note in notes:
+            db.session.delete(note)
+
         db.session.delete(user)
         db.session.commit()
 
         session.pop(AUTH_KEY, None)
+
+        flash("User deleted.")
         return redirect("/")
 
     raise Unauthorized()
+
 
 @app.route("/users/<username>/notes/add", methods=["GET", "POST"])
 def add_note(username):
@@ -153,9 +166,11 @@ def add_note(username):
         db.session.add(note)
         db.session.commit()
 
+        flash("Note added!")
         return redirect(f"/users/{username}")
 
     return render_template("add_note.html", form=form, user=user)
+
 
 @app.route("/notes/<int:note_id>/update", methods=["GET", "POST"])
 def update_note(note_id):
@@ -174,8 +189,23 @@ def update_note(note_id):
 
         db.session.commit()
 
+        flash("Note updated!")
         return redirect(f"/users/{note.owner_username}")
 
     return render_template("edit_note.html", form=form, note=note)
 
 
+@app.post("/notes/<int:note_id>/delete")
+def delete_note(note_id):
+    """Deletes note and redirects to /users/<username>."""
+
+    note = Note.query.get_or_404(note_id)
+
+    if AUTH_KEY not in session or session[AUTH_KEY] != note.owner_username:
+        raise Unauthorized()
+
+    db.session.delete(note)
+    db.session.commit()
+
+    flash("Note deleted!")
+    return redirect(f"/users/{note.owner_username}")
