@@ -14,6 +14,7 @@
   {% for note in notes %}
   <li>
     <form class="note-form-list">
+      {{ form.hidden_tag() }}
       <button formmethod="GET" formaction="/notes/{{ note.id }}/update"
         class="bi bi-pencil-square btn btn-secondary"></button>
       <button formmethod="POST" formaction="/notes/{{ note.id }}/delete" class="bi bi-trash3 btn btn-danger"></button>
@@ -30,12 +31,13 @@
 
 <!-- LOGOUT -->
 <form action="/logout" method="POST">
-  {{ logout_form.hidden_tag() }}
+  {{ form.hidden_tag() }}
   <button type="submit" class="btn btn-secondary">Logout</button>
 </form>
 
 <!-- DELETE USER -->
 <form>
+  {{ form.hidden_tag() }}
   <button formmethod="POST" formaction="/users/{{ user.username }}/delete" class="btn btn-danger">Delete
     Account</button>
 </form>

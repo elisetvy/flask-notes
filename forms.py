@@ -68,15 +68,5 @@ class AddNoteForm(FlaskForm):
     )
 
 
-class EditNoteForm(FlaskForm):
+class EditNoteForm(AddNoteForm):
     """Form to edit note."""
-
-    title = StringField(
-        "Title",
-        validators=[InputRequired(), Length(max=100)]
-    )
-
-    content = TextAreaField(
-        "Content",
-        validators=[InputRequired()]
-    )

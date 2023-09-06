@@ -43,7 +43,6 @@ def register():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
-# TODO: Get 2nd code review
         is_valid = True
 
         if User.query.filter(User.username == username).first():
@@ -100,13 +99,13 @@ def show_user(username):
     if session[AUTH_KEY] != username:
         raise Unauthorized()
 
-    logout_form = CSRFProtectForm()
+    form = CSRFProtectForm()
     user = User.query.get_or_404(username)
 
     return render_template("user.html",
                            user=user,
                            session=session,
-                           logout_form=logout_form,
+                           form=form,
                            notes=user.notes)
 
 
@@ -204,8 +203,13 @@ def delete_note(note_id):
     if AUTH_KEY not in session or session[AUTH_KEY] != note.owner_username:
         raise Unauthorized()
 
-    db.session.delete(note)
-    db.session.commit()
+    form = CSRFProtectForm()
 
-    flash("Note deleted!")
-    return redirect(f"/users/{note.owner_username}")
+    if form.validate_on_submit():
+        db.session.delete(note)
+        db.session.commit()
+
+        flash("Note deleted!")
+        return redirect(f"/users/{note.owner_username}")
+    else:
+        raise Unauthorized()
